@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: laravel-app
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    ports:
+      - "8000:8000"
+      - "5173:5173" # Vite用のポート
+    networks:
+      - laravel-net
+
+  db:
+    image: mysql:8.0
+    container_name: laravel-db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: laravel_db
+      MYSQL_USER: laravel_user
+      MYSQL_PASSWORD: laravel_pass
+    ports:
+      - "3306:3306"
+    volumes:
+      - laravel-db-data:/var/lib/mysql
+    networks:
+      - laravel-net
+
+networks:
+  laravel-net:
+
+volumes:
+  laravel-db-data:
+
