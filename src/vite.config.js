@@ -15,6 +15,7 @@ export default defineConfig({
         port: 5173,      // Dockerのポートマッピングと合わせる
         watch: {
             usePolling: true, // Dockerのためにポーリングを有効化
+            interval: 300,         // ← 監視間隔（ミリ秒）を明示的に指定
         },
     },
 });
