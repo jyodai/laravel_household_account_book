@@ -1,96 +1,130 @@
 import React, { useState } from 'react';
+import {
+  Box,
+  Typography,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  IconButton,
+  TextField,
+  MenuItem,
+  Button,
+  Chip,
+  Tooltip,
+} from '@mui/material';
+import EditIcon from '@mui/icons-material/Edit';
+import SaveIcon from '@mui/icons-material/Save';
+import CancelIcon from '@mui/icons-material/Cancel';
+import DeleteIcon from '@mui/icons-material/Delete';
 import { router } from '@inertiajs/react';
 
 export default function CategoryList({ categories }) {
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({});
 
-  const handleEditClick = (cat) => {
+  const startEdit = (cat) => {
     setEditingId(cat.id);
     setForm({ ...cat });
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setForm({ ...form, [name]: value });
+  const cancelEdit = () => {
+    setEditingId(null);
+    setForm({});
   };
 
-  const handleUpdate = (e) => {
-    e.preventDefault();
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    setForm({ ...form, [name]: type === 'number' ? Number(value) : value });
+  };
+
+  const handleSave = () => {
     router.put(`/categories/${editingId}`, form);
   };
 
   const handleDelete = (id) => {
-    if (confirm('本当に削除しますか？')) {
+    if (confirm('このカテゴリを削除しますか？')) {
       router.delete(`/categories/${id}`);
     }
   };
 
   return (
-    <div className="p-4 max-w-3xl mx-auto">
-      <h2 className="text-lg font-bold mb-4">カテゴリ一覧</h2>
-      <table className="w-full table-auto border">
-        <thead>
-          <tr className="bg-gray-200">
-            <th>名前</th>
-            <th>タイプ</th>
-            <th>色</th>
-            <th>並び順</th>
-            <th>メモ</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
+    <Box maxWidth="lg" mx="auto" p={3}>
+      <Typography variant="h5" gutterBottom>カテゴリ一覧</Typography>
+
+      <Table size="small">
+        <TableHead>
+          <TableRow>
+            <TableCell>名前</TableCell>
+            <TableCell>タイプ</TableCell>
+            <TableCell>色</TableCell>
+            <TableCell>並び順</TableCell>
+            <TableCell>メモ</TableCell>
+            <TableCell align="center">操作</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
           {categories.map(cat => (
-            <tr key={cat.id}>
-              <td>
+            <TableRow key={cat.id}>
+              <TableCell>
+                {editingId === cat.id
+                  ? <TextField name="name" value={form.name} onChange={handleChange} size="small" />
+                  : cat.name}
+              </TableCell>
+              <TableCell>
                 {editingId === cat.id ? (
-                  <input name="name" value={form.name} onChange={handleChange} />
-                ) : cat.name}
-              </td>
-              <td>
-                {editingId === cat.id ? (
-                  <select name="type" value={form.type} onChange={handleChange}>
-                    <option value={0}>支出</option>
-                    <option value={1}>収入</option>
-                  </select>
-                ) : (cat.type === 0 ? '支出' : '収入')}
-              </td>
-              <td>
-                {editingId === cat.id ? (
-                  <input name="color" type="color" value={form.color} onChange={handleChange} />
+                  <TextField
+                    select
+                    name="type"
+                    value={form.type}
+                    onChange={handleChange}
+                    size="small"
+                  >
+                    <MenuItem value={0}>支出</MenuItem>
+                    <MenuItem value={1}>収入</MenuItem>
+                  </TextField>
                 ) : (
-                  <span style={{ backgroundColor: cat.color }} className="inline-block w-5 h-5 rounded" />
+                  <Chip
+                    label={cat.type === 1 ? '収入' : '支出'}
+                    color={cat.type === 1 ? 'success' : 'error'}
+                    size="small"
+                  />
                 )}
-              </td>
-              <td>
-                {editingId === cat.id ? (
-                  <input name="sort" type="number" value={form.sort} onChange={handleChange} />
-                ) : cat.sort}
-              </td>
-              <td>
-                {editingId === cat.id ? (
-                  <input name="memo" value={form.memo} onChange={handleChange} />
-                ) : cat.memo}
-              </td>
-              <td>
+              </TableCell>
+              <TableCell>
+                {editingId === cat.id
+                  ? <TextField type="color" name="color" value={form.color} onChange={handleChange} size="small" />
+                  : <Box sx={{ width: 24, height: 24, backgroundColor: cat.color, borderRadius: '4px' }} />}
+              </TableCell>
+              <TableCell>
+                {editingId === cat.id
+                  ? <TextField type="number" name="sort" value={form.sort} onChange={handleChange} size="small" />
+                  : cat.sort}
+              </TableCell>
+              <TableCell>
+                {editingId === cat.id
+                  ? <TextField name="memo" value={form.memo} onChange={handleChange} size="small" />
+                  : cat.memo}
+              </TableCell>
+              <TableCell align="center">
                 {editingId === cat.id ? (
                   <>
-                    <button onClick={handleUpdate} className="text-blue-600 mr-2">保存</button>
-                    <button onClick={() => setEditingId(null)} className="text-gray-500">キャンセル</button>
+                    <Tooltip title="保存"><IconButton onClick={handleSave}><SaveIcon /></IconButton></Tooltip>
+                    <Tooltip title="キャンセル"><IconButton onClick={cancelEdit}><CancelIcon /></IconButton></Tooltip>
                   </>
                 ) : (
                   <>
-                    <button onClick={() => handleEditClick(cat)} className="text-blue-600 mr-2">編集</button>
-                    <button onClick={() => handleDelete(cat.id)} className="text-red-600">削除</button>
+                    <Tooltip title="編集"><IconButton onClick={() => startEdit(cat)}><EditIcon /></IconButton></Tooltip>
+                    <Tooltip title="削除"><IconButton onClick={() => handleDelete(cat.id)}><DeleteIcon color="error" /></IconButton></Tooltip>
                   </>
                 )}
-              </td>
-            </tr>
+              </TableCell>
+            </TableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </TableBody>
+      </Table>
+    </Box>
   );
 }
 

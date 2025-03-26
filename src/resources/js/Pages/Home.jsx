@@ -1,42 +1,79 @@
 import React from 'react';
+import {
+  Box,
+  Typography,
+  Card,
+  CardContent,
+  Chip,
+  Grid,
+  Button,
+} from '@mui/material';
 import { Link } from '@inertiajs/react';
 
 export default function Home({ categories, entries }) {
   return (
-    <div className="p-4 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">家計簿一覧</h1>
-      <table className="w-full table-auto border-collapse border border-gray-300 text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border p-2">日付</th>
-            <th className="border p-2">カテゴリ</th>
-            <th className="border p-2">金額</th>
-            <th className="border p-2">店舗</th>
-            <th className="border p-2">メモ</th>
-            <th className="border p-2">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map(entry => (
-            <tr key={entry.id}>
-              <td className="border p-2">{entry.date}</td>
-              <td className="border p-2">{entry.category?.name ?? '不明'}</td>
-              <td className="border p-2">{entry.amount.toLocaleString()} 円</td>
-              <td className="border p-2">{entry.store}</td>
-              <td className="border p-2">{entry.memo}</td>
-              <td className="border p-2 text-center">
-                <Link
-                  href={`/entries/${entry.id}/edit`}
-                  className="text-blue-600 hover:underline"
-                >
-                  編集
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Box maxWidth="lg" mx="auto" p={3}>
+      <Typography variant="h5" gutterBottom>
+        家計簿一覧
+      </Typography>
+
+      <Grid container spacing={2}>
+        {entries.map((entry) => {
+          const isIncome = entry.category?.type === 1;
+          return (
+            <Grid item xs={12} sm={6} md={4} key={entry.id}>
+              <Card variant="outlined" sx={{ height: '100%' }}>
+                <CardContent>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Typography variant="subtitle2" color="text.secondary">
+                      {entry.date}
+                    </Typography>
+                    <Chip
+                      label={entry.category?.name ?? '不明'}
+                      size="small"
+                      sx={{
+                        backgroundColor: entry.category?.color ?? '#888',
+                        color: '#fff',
+                      }}
+                    />
+                  </Box>
+
+                  <Typography
+                    variant="h6"
+                    sx={{ color: isIncome ? 'success.main' : 'error.main', mt: 1 }}
+                  >
+                    {entry.amount.toLocaleString()} 円
+                  </Typography>
+
+                  {entry.store && (
+                    <Typography variant="body2" color="text.secondary">
+                      店舗: {entry.store}
+                    </Typography>
+                  )}
+
+                  {entry.memo && (
+                    <Typography variant="body2" color="text.secondary">
+                      メモ: {entry.memo}
+                    </Typography>
+                  )}
+
+                  <Box mt={2}>
+                    <Button
+                      component={Link}
+                      href={`/entries/${entry.id}/edit`}
+                      size="small"
+                      variant="outlined"
+                    >
+                      編集
+                    </Button>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
+      </Grid>
+    </Box>
   );
 }
 

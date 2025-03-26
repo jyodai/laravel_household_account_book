@@ -1,45 +1,76 @@
 import React from 'react';
+import {
+  Box,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  Divider,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from '@mui/material';
 
 export default function WeekAnalysis({ startDate, endDate, summary, entries }) {
   return (
-    <div className="p-4 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold mb-4">週次分析</h2>
-      <p className="mb-4 text-sm">対象期間: {startDate} 〜 {endDate}</p>
+    <Box maxWidth="lg" mx="auto" p={3}>
+      <Typography variant="h5" gutterBottom>
+        週次分析
+      </Typography>
+      <Typography variant="body2" color="text.secondary" mb={2}>
+        対象期間：{startDate} ～ {endDate}
+      </Typography>
 
-      <h3 className="text-lg font-semibold mt-6 mb-2">カテゴリ別集計</h3>
-      <ul className="mb-6">
-        {summary.map((item, index) => (
-          <li key={index} className="flex justify-between border-b py-1">
-            <span>{item.category_name}</span>
-            <span>{item.total.toLocaleString()} 円</span>
-          </li>
-        ))}
-      </ul>
-
-      <h3 className="text-lg font-semibold mb-2">詳細一覧</h3>
-      <table className="w-full border table-auto text-sm">
-        <thead>
-          <tr className="bg-gray-100">
-            <th className="border p-2">日付</th>
-            <th className="border p-2">カテゴリ</th>
-            <th className="border p-2">金額</th>
-            <th className="border p-2">店舗</th>
-            <th className="border p-2">メモ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {entries.map(entry => (
-            <tr key={entry.id}>
-              <td className="border p-2">{entry.date}</td>
-              <td className="border p-2">{entry.category?.name ?? '不明'}</td>
-              <td className="border p-2">{entry.amount.toLocaleString()}</td>
-              <td className="border p-2">{entry.store}</td>
-              <td className="border p-2">{entry.memo}</td>
-            </tr>
+      <Paper sx={{ p: 2, mb: 4 }}>
+        <Typography variant="subtitle1" gutterBottom>
+          カテゴリ別集計
+        </Typography>
+        <List>
+          {summary.map((item, i) => (
+            <React.Fragment key={i}>
+              <ListItem disablePadding>
+                <ListItemText
+                  primary={item.category_name}
+                  secondary={`${item.total.toLocaleString()} 円`}
+                />
+              </ListItem>
+              <Divider />
+            </React.Fragment>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </List>
+      </Paper>
+
+      <Paper sx={{ p: 2 }}>
+        <Typography variant="subtitle1" gutterBottom>
+          詳細一覧
+        </Typography>
+        <Table size="small">
+          <TableHead>
+            <TableRow>
+              <TableCell>日付</TableCell>
+              <TableCell>カテゴリ</TableCell>
+              <TableCell align="right">金額</TableCell>
+              <TableCell>店舗</TableCell>
+              <TableCell>メモ</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {entries.map((entry) => (
+              <TableRow key={entry.id}>
+                <TableCell>{entry.date}</TableCell>
+                <TableCell>{entry.category?.name ?? '不明'}</TableCell>
+                <TableCell align="right">{entry.amount.toLocaleString()} 円</TableCell>
+                <TableCell>{entry.store}</TableCell>
+                <TableCell>{entry.memo}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </Paper>
+    </Box>
   );
 }
 

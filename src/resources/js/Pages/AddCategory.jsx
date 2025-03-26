@@ -1,4 +1,12 @@
 import React, { useState } from 'react';
+import {
+  Box,
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Paper,
+} from '@mui/material';
 import { router } from '@inertiajs/react';
 
 export default function AddCategory() {
@@ -12,7 +20,10 @@ export default function AddCategory() {
 
   const handleChange = (e) => {
     const { name, value, type } = e.target;
-    setForm({ ...form, [name]: type === 'number' ? Number(value) : value });
+    setForm({
+      ...form,
+      [name]: type === 'number' ? Number(value) : value,
+    });
   };
 
   const handleSubmit = (e) => {
@@ -21,25 +32,65 @@ export default function AddCategory() {
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h2 className="text-lg font-bold mb-4">カテゴリ追加</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="text" name="name" value={form.name} onChange={handleChange} placeholder="カテゴリ名" className="w-full border px-2 py-1" />
+    <Box maxWidth="sm" mx="auto" p={3}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          カテゴリ追加
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            label="カテゴリ名"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            required
+            fullWidth
+          />
 
-        <select name="type" value={form.type} onChange={handleChange} className="w-full border px-2 py-1">
-          <option value={0}>支出</option>
-          <option value={1}>収入</option>
-        </select>
+          <TextField
+            select
+            label="タイプ"
+            name="type"
+            value={form.type}
+            onChange={handleChange}
+            fullWidth
+          >
+            <MenuItem value={0}>支出</MenuItem>
+            <MenuItem value={1}>収入</MenuItem>
+          </TextField>
 
-        <input type="color" name="color" value={form.color} onChange={handleChange} className="w-full" />
+          <TextField
+            type="color"
+            label="カラー"
+            name="color"
+            value={form.color}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
 
-        <input type="text" name="memo" value={form.memo} onChange={handleChange} placeholder="メモ" className="w-full border px-2 py-1" />
+          <TextField
+            label="メモ"
+            name="memo"
+            value={form.memo}
+            onChange={handleChange}
+            fullWidth
+          />
 
-        <input type="number" name="sort" value={form.sort} onChange={handleChange} placeholder="表示順" className="w-full border px-2 py-1" />
+          <TextField
+            label="表示順"
+            name="sort"
+            type="number"
+            value={form.sort}
+            onChange={handleChange}
+            fullWidth
+          />
 
-        <button type="submit" className="bg-green-600 text-white px-4 py-2 rounded">登録</button>
-      </form>
-    </div>
+          <Button type="submit" variant="contained" color="primary">
+            登録する
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
-

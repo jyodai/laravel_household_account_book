@@ -1,7 +1,19 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import {
+  Box,
+  TextField,
+  MenuItem,
+  Checkbox,
+  FormControlLabel,
+  Button,
+  Typography,
+  Paper,
+} from '@mui/material';
 import { router } from '@inertiajs/react';
 
 export default function AddEntry({ entry = null, categories }) {
+  const isEdit = !!entry;
+
   const [form, setForm] = useState({
     date: entry ? entry.date.slice(0, 16) : new Date().toISOString().slice(0, 16),
     category_id: entry?.category_id || categories[0]?.id || '',
@@ -11,8 +23,6 @@ export default function AddEntry({ entry = null, categories }) {
     claim_flag: entry?.claim_flag || false,
     claim_amount: entry?.claim_amount || '',
   });
-
-  const isEdit = !!entry;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -32,37 +42,89 @@ export default function AddEntry({ entry = null, categories }) {
   };
 
   return (
-    <div className="p-4 max-w-xl mx-auto">
-      <h2 className="text-lg font-bold mb-4">{isEdit ? 'エントリ編集' : 'エントリ追加'}</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input type="datetime-local" name="date" value={form.date} onChange={handleChange} className="w-full border px-2 py-1" />
+    <Box maxWidth="sm" mx="auto" p={3}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h6" gutterBottom>
+          {isEdit ? 'エントリ編集' : 'エントリ追加'}
+        </Typography>
+        <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <TextField
+            type="datetime-local"
+            label="日付"
+            name="date"
+            value={form.date}
+            onChange={handleChange}
+            InputLabelProps={{ shrink: true }}
+            fullWidth
+          />
 
-        <select name="category_id" value={form.category_id} onChange={handleChange} className="w-full border px-2 py-1">
-          {categories.map(cat => (
-            <option key={cat.id} value={cat.id}>{cat.name}</option>
-          ))}
-        </select>
+          <TextField
+            select
+            label="カテゴリ"
+            name="category_id"
+            value={form.category_id}
+            onChange={handleChange}
+            fullWidth
+          >
+            {categories.map((cat) => (
+              <MenuItem key={cat.id} value={cat.id}>
+                {cat.name}
+              </MenuItem>
+            ))}
+          </TextField>
 
-        <input type="number" name="amount" value={form.amount} onChange={handleChange} placeholder="金額" className="w-full border px-2 py-1" />
+          <TextField
+            type="number"
+            label="金額"
+            name="amount"
+            value={form.amount}
+            onChange={handleChange}
+            fullWidth
+          />
 
-        <input type="text" name="store" value={form.store} onChange={handleChange} placeholder="店舗名" className="w-full border px-2 py-1" />
+          <TextField
+            label="店舗名"
+            name="store"
+            value={form.store}
+            onChange={handleChange}
+            fullWidth
+          />
 
-        <input type="text" name="memo" value={form.memo} onChange={handleChange} placeholder="メモ" className="w-full border px-2 py-1" />
+          <TextField
+            label="メモ"
+            name="memo"
+            value={form.memo}
+            onChange={handleChange}
+            fullWidth
+          />
 
-        <label className="flex items-center space-x-2">
-          <input type="checkbox" name="claim_flag" checked={form.claim_flag} onChange={handleChange} />
-          <span>精算あり</span>
-        </label>
+          <FormControlLabel
+            control={
+              <Checkbox
+                name="claim_flag"
+                checked={form.claim_flag}
+                onChange={handleChange}
+              />
+            }
+            label="精算あり"
+          />
 
-        {form.claim_flag && (
-          <input type="number" name="claim_amount" value={form.claim_amount} onChange={handleChange} placeholder="精算金額" className="w-full border px-2 py-1" />
-        )}
+          {form.claim_flag && (
+            <TextField
+              type="number"
+              label="精算金額"
+              name="claim_amount"
+              value={form.claim_amount}
+              onChange={handleChange}
+              fullWidth
+            />
+          )}
 
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">
-          {isEdit ? '更新' : '登録'}
-        </button>
-      </form>
-    </div>
+          <Button type="submit" variant="contained" color="primary">
+            {isEdit ? '更新する' : '登録する'}
+          </Button>
+        </Box>
+      </Paper>
+    </Box>
   );
 }
-
