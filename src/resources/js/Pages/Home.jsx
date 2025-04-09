@@ -1,4 +1,5 @@
 import React from 'react';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import {
   Box,
   Typography,
@@ -7,15 +8,20 @@ import {
   Chip,
   Grid,
   Button,
+  Stack,
 } from '@mui/material';
-import { Link } from '@inertiajs/react';
+import { Link, router } from '@inertiajs/react';
 
 export default function Home({ categories, entries }) {
+  const handleDelete = (id) => {
+    if (confirm('このエントリを削除しますか？')) {
+      router.delete(`/entries/${id}`);
+    }
+  };
+
   return (
     <Box maxWidth="lg" mx="auto" p={3}>
-      <Typography variant="h5" gutterBottom>
-        家計簿一覧
-      </Typography>
+      <Typography variant="h5" gutterBottom>家計簿一覧</Typography>
 
       <Grid container spacing={2}>
         {entries.map((entry) => {
@@ -28,14 +34,23 @@ export default function Home({ categories, entries }) {
                     <Typography variant="subtitle2" color="text.secondary">
                       {entry.date}
                     </Typography>
-                    <Chip
-                      label={entry.category?.name ?? '不明'}
-                      size="small"
-                      sx={{
-                        backgroundColor: entry.category?.color ?? '#888',
-                        color: '#fff',
-                      }}
-                    />
+                    <Stack direction="row" spacing={1}>
+                      <Chip
+                        label={entry.category?.name ?? '不明'}
+                        size="small"
+                        sx={{
+                          backgroundColor: entry.category?.color ?? '#888',
+                          color: '#fff',
+                        }}
+                      />
+                      {entry.claim_flag && (
+                        <Chip
+                          label="精算"
+                          size="small"
+                          color="warning"
+                        />
+                      )}
+                    </Stack>
                   </Box>
 
                   <Typography
@@ -57,14 +72,24 @@ export default function Home({ categories, entries }) {
                     </Typography>
                   )}
 
-                  <Box mt={2}>
+                  <Box mt={2} display="flex" gap={1}>
                     <Button
                       component={Link}
                       href={`/entries/${entry.id}/edit`}
                       size="small"
                       variant="outlined"
+                      fullWidth
                     >
                       編集
+                    </Button>
+                    <Button
+                      onClick={() => handleDelete(entry.id)}
+                      size="small"
+                      variant="outlined"
+                      color="error"
+                      fullWidth
+                    >
+                      削除
                     </Button>
                   </Box>
                 </CardContent>
@@ -77,3 +102,4 @@ export default function Home({ categories, entries }) {
   );
 }
 
+Home.layout = (page) => <DashboardLayout children={page} />;

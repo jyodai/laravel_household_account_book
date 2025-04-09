@@ -12,7 +12,6 @@ class AnalysisController extends Controller
 {
     public function month(Request $request)
     {
-        // パラメータ受け取り or デフォルト今月
         $startDate = $request->query('startDate')
             ? Carbon::parse($request->query('startDate'))->startOfDay()
             : Carbon::now()->startOfMonth();
@@ -21,25 +20,19 @@ class AnalysisController extends Controller
             ? Carbon::parse($request->query('endDate'))->endOfDay()
             : Carbon::now()->endOfMonth();
 
-        // エントリ取得（カテゴリJOIN含む）
         $entries = Entry::with('category')
             ->whereBetween('date', [$startDate, $endDate])
             ->orderBy('date', 'asc')
             ->get();
 
-        // カテゴリ別に金額合計
-        $summary = $entries->groupBy('category_id')->map(function ($items, $key) {
-            return [
-                'category_name' => $items->first()->category->name ?? '不明',
-                'total' => $items->sum('amount'),
-            ];
-        })->values();
+        $expenseEntries = $entries->filter(fn($e) => $e->category && $e->category->type === 0)->values();
+        $incomeEntries = $entries->filter(fn($e) => $e->category && $e->category->type === 1)->values();
 
         return Inertia::render('MonthAnalysis', [
             'startDate' => $startDate->toDateString(),
             'endDate' => $endDate->toDateString(),
-            'summary' => $summary,
-            'entries' => $entries,
+            'expenseEntries' => $expenseEntries,
+            'incomeEntries' => $incomeEntries,
         ]);
     }
 
@@ -58,20 +51,15 @@ class AnalysisController extends Controller
             ->orderBy('date', 'asc')
             ->get();
 
-        $summary = $entries->groupBy('category_id')->map(function ($items) {
-            return [
-                'category_name' => $items->first()->category->name ?? '不明',
-                'total' => $items->sum('amount'),
-            ];
-        })->values();
+        $expenseEntries = $entries->filter(fn($e) => $e->category && $e->category->type === 0)->values();
+        $incomeEntries = $entries->filter(fn($e) => $e->category && $e->category->type === 1)->values();
 
         return Inertia::render('WeekAnalysis', [
             'startDate' => $startDate->toDateString(),
             'endDate' => $endDate->toDateString(),
-            'summary' => $summary,
-            'entries' => $entries,
+            'expenseEntries' => $expenseEntries,
+            'incomeEntries' => $incomeEntries,
         ]);
     }
-
 }
 

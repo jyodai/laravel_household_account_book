@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import DashboardLayout from '@/Layouts/DashboardLayout';
 import {
   Box,
   TextField,
@@ -94,3 +95,5 @@ export default function AddCategory() {
     </Box>
   );
 }
+
+AddCategory.layout = (page) => <DashboardLayout children={page} />;
