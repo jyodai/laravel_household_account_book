@@ -34,11 +34,16 @@ export default function Home({ categories, entries }) {
     return groups;
   }, {});
 
+  const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
+
   return (
     <Box maxWidth="md">
+
       {Object.entries(groupedEntries).map(([date, entriesForDate]) => (
         <Box key={date} mb={5}>
-          <Typography variant="h6" gutterBottom>{date}</Typography>
+          <Typography variant="h6" gutterBottom>
+            {date} ({weekDays[new Date(date).getDay()]})
+          </Typography>
 
           <Stack spacing={2}>
             {entriesForDate.map((entry) => {
