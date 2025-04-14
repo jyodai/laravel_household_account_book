@@ -6,11 +6,12 @@ import {
   Card,
   CardContent,
   Chip,
-  Grid,
-  Button,
   Stack,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import { Link, router } from '@inertiajs/react';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Home({ categories, entries }) {
   const handleDelete = (id) => {
@@ -19,87 +20,103 @@ export default function Home({ categories, entries }) {
     }
   };
 
+  const handleCardClick = (id) => {
+    router.get(`/entries/${id}/edit`);
+  };
+
+  // 日付ごとにグループ化
+  const groupedEntries = entries.reduce((groups, entry) => {
+    const date = entry.date.split('T')[0];
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(entry);
+    return groups;
+  }, {});
+
   return (
-    <Box maxWidth="lg" mx="auto" p={3}>
-      <Typography variant="h5" gutterBottom>家計簿一覧</Typography>
+    <Box maxWidth="md">
+      {Object.entries(groupedEntries).map(([date, entriesForDate]) => (
+        <Box key={date} mb={5}>
+          <Typography variant="h6" gutterBottom>{date}</Typography>
 
-      <Grid container spacing={2}>
-        {entries.map((entry) => {
-          const isIncome = entry.category?.type === 1;
-          return (
-            <Grid item xs={12} sm={6} md={4} key={entry.id}>
-              <Card variant="outlined" sx={{ height: '100%' }}>
-                <CardContent>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography variant="subtitle2" color="text.secondary">
-                      {entry.date}
-                    </Typography>
-                    <Stack direction="row" spacing={1}>
-                      <Chip
-                        label={entry.category?.name ?? '不明'}
-                        size="small"
-                        sx={{
-                          backgroundColor: entry.category?.color ?? '#888',
-                          color: '#fff',
-                        }}
-                      />
-                      {entry.claim_flag && (
+          <Stack spacing={2}>
+            {entriesForDate.map((entry) => {
+              const isIncome = entry.category?.type === 1;
+              return (
+                <Card
+                  key={entry.id}
+                  variant="outlined"
+                  sx={{
+                    width: '100%',
+                    cursor: 'pointer',
+                    transition: '0.3s',
+                    '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                  }}
+                  onClick={() => handleCardClick(entry.id)}
+                >
+                  <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                      <Stack direction="row" spacing={1}>
                         <Chip
-                          label="精算"
+                          label={entry.category?.name ?? '不明'}
                           size="small"
-                          color="warning"
+                          sx={{
+                            backgroundColor: entry.category?.color ?? '#888',
+                            color: '#fff',
+                          }}
                         />
-                      )}
-                    </Stack>
-                  </Box>
+                        {entry.claim_flag && (
+                          <Chip
+                            label="精算"
+                            size="small"
+                            color="warning"
+                          />
+                        )}
+                      </Stack>
 
-                  <Typography
-                    variant="h6"
-                    sx={{ color: isIncome ? 'success.main' : 'error.main', mt: 1 }}
-                  >
-                    {entry.amount.toLocaleString()} 円
-                  </Typography>
+                      <Tooltip title="削除">
+                        <IconButton
+                          onClick={(e) => {
+                            e.stopPropagation(); // カードクリックをキャンセル
+                            handleDelete(entry.id);
+                          }}
+                          size="small"
+                          color="error"
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </Tooltip>
+                    </Box>
 
-                  {entry.store && (
-                    <Typography variant="body2" color="text.secondary">
-                      店舗: {entry.store}
-                    </Typography>
-                  )}
-
-                  {entry.memo && (
-                    <Typography variant="body2" color="text.secondary">
-                      メモ: {entry.memo}
-                    </Typography>
-                  )}
-
-                  <Box mt={2} display="flex" gap={1}>
-                    <Button
-                      component={Link}
-                      href={`/entries/${entry.id}/edit`}
-                      size="small"
-                      variant="outlined"
-                      fullWidth
+                    <Typography
+                      variant="h6"
+                      sx={{ color: isIncome ? 'success.main' : 'error.main' }}
                     >
-                      編集
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(entry.id)}
-                      size="small"
-                      variant="outlined"
-                      color="error"
-                      fullWidth
-                    >
-                      削除
-                    </Button>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Grid>
-          );
-        })}
-      </Grid>
+                      {entry.amount.toLocaleString()} 円
+                    </Typography>
+
+                    {entry.store && (
+                      <Typography variant="body2" color="text.secondary">
+                        店舗: {entry.store}
+                      </Typography>
+                    )}
+
+                    {entry.memo && (
+                      <Typography variant="body2" color="text.secondary">
+                        メモ: {entry.memo}
+                      </Typography>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </Stack>
+        </Box>
+      ))}
     </Box>
   );
 }
 
 Home.layout = (page) => <DashboardLayout children={page} />;
+
