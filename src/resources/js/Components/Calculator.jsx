@@ -1,18 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Button,
   Dialog,
   DialogTitle,
   DialogContent,
-  Grid,
   TextField,
 } from '@mui/material';
 
 export default function Calculator({ open, onClose, onCalculate, initialValue = '' }) {
   const [input, setInput] = useState('');
+  const textFieldRef = useRef(null);
 
-  // 🚀 初期値を受け取ったら、ダイアログが開いたときにセットする！
   useEffect(() => {
     if (open) {
       setInput(initialValue.toString());
@@ -34,6 +33,7 @@ export default function Calculator({ open, onClose, onCalculate, initialValue = 
         onCalculate(Math.floor(result)); // 金額なので整数
       }
       setInput('');
+      textFieldRef.current?.blur(); // フォーカスを明示的に外す
       onClose();
     } catch (error) {
       alert('無効な式です');
@@ -56,6 +56,7 @@ export default function Calculator({ open, onClose, onCalculate, initialValue = 
           <TextField
             value={input}
             fullWidth
+            inputRef={textFieldRef}
             InputProps={{
               readOnly: true,
             }}
@@ -63,46 +64,61 @@ export default function Calculator({ open, onClose, onCalculate, initialValue = 
         </Box>
 
         {/* 最上段：Cと←ボタン */}
-        <Grid container spacing={1} sx={{ mb: 1 }}>
-          <Grid item xs={6}>
-            <Button variant="outlined" color="error" fullWidth sx={{ py: 2 }} onClick={() => setInput('')}>
+        <Box sx={{ display: 'flex', gap: 1, mb: 1 }}>
+          <Box sx={{ flex: 1 }}>
+            <Button
+              variant="outlined"
+              color="error"
+              fullWidth
+              sx={{ py: 2, fontSize: '1.2rem' }}
+              onClick={() => setInput('')}
+            >
               C
             </Button>
-          </Grid>
-          <Grid item xs={6}>
-            <Button variant="outlined" color="warning" fullWidth sx={{ py: 2 }} onClick={deleteLastChar}>
+          </Box>
+          <Box sx={{ flex: 1 }}>
+            <Button
+              variant="outlined"
+              color="warning"
+              fullWidth
+              sx={{ py: 2, fontSize: '1.2rem' }}
+              onClick={deleteLastChar}
+            >
               ←
             </Button>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* 数字・演算子ボタン */}
         {buttonRows.map((row, idx) => (
-          <Grid container spacing={1} key={idx} sx={{ mb: 1 }}>
+          <Box key={idx} sx={{ display: 'flex', gap: 1, mb: 1 }}>
             {row.map((char) => (
-              <Grid item xs={3} key={char}>
-                <Button variant="contained" fullWidth sx={{ py: 2 }} onClick={handleInput(char)}>
+              <Box key={char} sx={{ flex: 1 }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ py: 2 }}
+                  onClick={handleInput(char)}
+                >
                   {char}
                 </Button>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         ))}
 
         {/* =ボタン */}
-        <Grid container spacing={1}>
-          <Grid item xs={12}>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{ fontSize: '1.5rem', py: 2 }}
-              onClick={calculateResult}
-            >
-              ＝
-            </Button>
-          </Grid>
-        </Grid>
+        <Box sx={{ mt: 1 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            sx={{ fontSize: '1.5rem', py: 2 }}
+            onClick={calculateResult}
+          >
+            ＝
+          </Button>
+        </Box>
       </DialogContent>
     </Dialog>
   );

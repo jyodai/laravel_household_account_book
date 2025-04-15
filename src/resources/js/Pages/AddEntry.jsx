@@ -70,10 +70,6 @@ export default function AddEntry({ entry = null, categories }) {
   return (
     <Box maxWidth="sm" mx="auto" p={3}>
       <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h6" gutterBottom>
-          {isEdit ? 'エントリ編集' : 'エントリ追加'}
-        </Typography>
-
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {/* タイプ選択 */}
           <TextField
