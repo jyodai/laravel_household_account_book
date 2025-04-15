@@ -104,7 +104,7 @@ export default function DashboardLayout({ children }) {
 
       {/* サイドメニュー（Drawer） */}
       <Drawer
-        anchor="left"
+        anchor="right"
         open={drawerOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
