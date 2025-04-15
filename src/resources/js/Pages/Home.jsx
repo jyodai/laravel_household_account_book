@@ -37,7 +37,8 @@ export default function Home({ categories, entries }) {
   const weekDays = ['日', '月', '火', '水', '木', '金', '土'];
 
   return (
-    <Box maxWidth="md">
+    <Box maxWidth="md" sx={{ mx: 'auto' }}>
+
 
       {Object.entries(groupedEntries).map(([date, entriesForDate]) => (
         <Box key={date} mb={5}>
